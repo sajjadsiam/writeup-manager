@@ -766,6 +766,6 @@ _Empowering cybersecurity researchers worldwide, one writeup at a time._
 
 ---
 
-<small>© 2024 Writeup Manager. All rights reserved. | MIT License | Built with Next.js</small>
+<small>© 2025 Writeup Manager. All rights reserved. | MIT License | Built with Next.js</small>
 
 </div>
