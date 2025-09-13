@@ -24,13 +24,7 @@ import {
   Visibility as VisibilityIcon,
   CheckCircle as ReadIcon,
   RadioButtonUnchecked as UnreadIcon,
-  OpenInNew as OpenInNewIcon,
-  Security,
-  Computer,
-  Web,
-  BugReport,
-  Shield,
-  Star
+  OpenInNew as OpenInNewIcon
 } from '@mui/icons-material';
 import { ProcessedWriteup } from '@/types/writeup';
 
@@ -89,39 +83,41 @@ export default function WriteupTable({
 
   const isSelected = (id: string) => selected.indexOf(id) !== -1;
 
-  const getCategoryIcon = (category: string) => {
-    switch (category.toLowerCase()) {
-      case 'web':
-        return <Web fontSize="small" />;
-      case 'pwn':
-        return <Security fontSize="small" />;
-      case 'crypto':
-        return <Shield fontSize="small" />;
-      case 'forensics':
-        return <Computer fontSize="small" />;
-      case 'reversing':
-        return <BugReport fontSize="small" />;
-      default:
-        return <Star fontSize="small" />;
-    }
-  };
+  // Utility function for category colors (keeping getCategoryIcon for future use)
+  // const getCategoryIcon = (category: string) => {
+  //   switch (category.toLowerCase()) {
+  //     case 'web':
+  //       return <Web fontSize="small" />;
+  //     case 'pwn':
+  //       return <Security fontSize="small" />;
+  //     case 'crypto':
+  //       return <Shield fontSize="small" />;
+  //     case 'forensics':
+  //       return <Computer fontSize="small" />;
+  //     case 'reversing':
+  //       return <BugReport fontSize="small" />;
+  //     default:
+  //       return <Star fontSize="small" />;
+  //   }
+  // };
 
-  const getCategoryColor = (category: string) => {
-    switch (category.toLowerCase()) {
-      case 'web':
-        return 'primary';
-      case 'pwn':
-        return 'error';
-      case 'crypto':
-        return 'warning';
-      case 'forensics':
-        return 'info';
-      case 'reversing':
-        return 'secondary';
-      default:
-        return 'default';
-    }
-  };
+  // Utility function for category colors (keeping for future use)
+  // const getCategoryColor = (category: string) => {
+  //   switch (category.toLowerCase()) {
+  //     case 'web':
+  //       return 'primary';
+  //     case 'pwn':
+  //       return 'error';
+  //     case 'crypto':
+  //       return 'warning';
+  //     case 'forensics':
+  //       return 'info';
+  //     case 'reversing':
+  //       return 'secondary';
+  //     default:
+  //       return 'default';
+  //   }
+  // };
 
   const paginatedWriteups = writeups.slice(
     page * rowsPerPage,

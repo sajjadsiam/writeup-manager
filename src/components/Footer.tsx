@@ -11,11 +11,11 @@ import {
   Chip,
   Tooltip
 } from '@mui/material';
+import DynamicYear from './DynamicYear';
 import {
   GitHub as GitHubIcon,
   Code as CodeIcon,
   LinkedIn as LinkedInIcon,
-  Twitter as TwitterIcon,
   Language as WebIcon,
   Favorite as HeartIcon,
   Build as BuildIcon
@@ -261,7 +261,7 @@ const Footer: React.FC = () => {
                 fontWeight: 'medium',
               }}
             >
-              © {new Date().getFullYear()} Writeup Manager • Made with ❤️
+              © <DynamicYear /> Writeup Manager • Made with ❤️
             </Typography>
           </Box>
         </Box>

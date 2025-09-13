@@ -719,6 +719,12 @@ I'm always excited to connect with fellow developers and security researchers! F
 
 ## 🙏 Acknowledgments
 
+### 📊 Data Sources
+
+- **[Pentester Land](https://pentester.land/writeups/)** - Comprehensive cybersecurity writeups database and community resource that provides the sample JSON data used in this application. Special thanks to the Pentester Land team for maintaining this valuable resource for the cybersecurity community.
+
+### 🛠️ Technologies & Frameworks
+
 - [Next.js](https://nextjs.org/) - The React Framework
 - [Material-UI](https://mui.com/) - React Component Library
 - [TypeScript](https://www.typescriptlang.org/) - Typed JavaScript

@@ -10,7 +10,6 @@ import {
   Typography,
   Box,
   Chip,
-  Divider,
   Link as MuiLink,
   IconButton,
   Paper

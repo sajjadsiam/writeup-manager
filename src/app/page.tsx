@@ -11,8 +11,9 @@ import WriteupDetailModal from '@/components/WriteupDetailModal';
 import SearchAndFilter from '@/components/SearchAndFilter';
 import Footer from '@/components/Footer';
 import NoSSR from '@/components/NoSSR';
-import { ProcessedWriteup, FilterState, WriteupData } from '@/types/writeup';
-import { processWriteups, getUniqueValues, filterWriteups } from '@/utils/dataUtils';
+import StatCounter from '@/components/StatCounter';
+import { ProcessedWriteup, FilterState } from '@/types/writeup';
+import { processWriteups, filterWriteups } from '@/utils/dataUtils';
 
 // Create a beautiful modern theme
 const theme = createTheme({
@@ -226,7 +227,7 @@ export default function Home() {
         
         // Fallback to local file  
         const writeupData = await import('@/data/writeup.json');
-        const processedData = processWriteups(writeupData.default ? writeupData.default : writeupData as any);
+        const processedData = processWriteups(writeupData.default ? writeupData.default : writeupData);
         setWriteups(processedData);
       } catch (err) {
         console.error('Error loading writeups:', err);
@@ -239,10 +240,10 @@ export default function Home() {
     loadData();
   }, []);
 
-  // Handle filter changes
-  const handleFilterChange = (newState: Partial<FilterState>) => {
-    setFilterState(prev => ({ ...prev, ...newState }));
-  };
+  // Handle filter changes (keeping for future use)
+  // const handleFilterChange = (newState: Partial<FilterState>) => {
+  //   setFilterState(prev => ({ ...prev, ...newState }));
+  // };
 
   // Handle writeup selection for detailed view
   const handleRowSelect = (writeup: ProcessedWriteup) => {
@@ -258,10 +259,10 @@ export default function Home() {
     );
   };
 
-  // Get unique values for filters
-  const availableTags = useMemo(() => getUniqueValues(writeups, 'tags'), [writeups]);
-  const availablePrograms = useMemo(() => getUniqueValues(writeups, 'programs'), [writeups]);
-  const availableAuthors = useMemo(() => getUniqueValues(writeups, 'authors'), [writeups]);
+  // Get unique values for filters (keeping for future use)
+  // const availableTags = useMemo(() => getUniqueValues(writeups, 'tags'), [writeups]);
+  // const availablePrograms = useMemo(() => getUniqueValues(writeups, 'programs'), [writeups]);
+  // const availableAuthors = useMemo(() => getUniqueValues(writeups, 'authors'), [writeups]);
 
   // Filter writeups based on current filter state
   const filteredWriteups = useMemo(() => 
@@ -459,38 +460,8 @@ export default function Home() {
                       {writeups.length} Total Writeups
                     </Typography>
                   </Paper>
-                  <Paper
-                    elevation={0}
-                    sx={{
-                      px: 2,
-                      py: 1,
-                      backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                      backdropFilter: 'blur(10px)',
-                      border: '1px solid rgba(255, 255, 255, 0.3)',
-                      borderRadius: 2,
-                      color: 'white',
-                    }}
-                  >
-                    <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                      {writeups.filter(w => w.read).length} Read
-                    </Typography>
-                  </Paper>
-                  <Paper
-                    elevation={0}
-                    sx={{
-                      px: 2,
-                      py: 1,
-                      backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                      backdropFilter: 'blur(10px)',
-                      border: '1px solid rgba(255, 255, 255, 0.3)',
-                      borderRadius: 2,
-                      color: 'white',
-                    }}
-                  >
-                    <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                      {writeups.filter(w => !w.read).length} Unread
-                    </Typography>
-                  </Paper>
+                  <StatCounter writeups={writeups} type="read" />
+                  <StatCounter writeups={writeups} type="unread" />
                 </Box>
               </Box>
             </Container>
@@ -516,8 +487,9 @@ export default function Home() {
               onToggleRead={(id) => handleToggleRead([id])}
             />
           </Container>
+          
+          <Footer />
         </NoSSR>
-        <Footer />
       </Box>
     </ThemeProvider>
   );

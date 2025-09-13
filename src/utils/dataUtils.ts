@@ -1,4 +1,4 @@
-import { Writeup, WriteupData, ProcessedWriteup } from '@/types/writeup';
+import { WriteupData, ProcessedWriteup } from '@/types/writeup';
 
 export function processWriteups(data: WriteupData): ProcessedWriteup[] {
   return data.data.map((writeup, index) => {
