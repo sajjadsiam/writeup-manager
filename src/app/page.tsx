@@ -1,103 +1,524 @@
-import Image from "next/image";
+'use client';
+
+import React, { useState, useEffect, useMemo } from 'react';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+import { Container, Box, Alert, CircularProgress, Typography, Paper } from '@mui/material';
+
+
+import WriteupTable from '@/components/WriteupTable';
+import WriteupDetailModal from '@/components/WriteupDetailModal';
+import SearchAndFilter from '@/components/SearchAndFilter';
+import Footer from '@/components/Footer';
+import NoSSR from '@/components/NoSSR';
+import { ProcessedWriteup, FilterState, WriteupData } from '@/types/writeup';
+import { processWriteups, getUniqueValues, filterWriteups } from '@/utils/dataUtils';
+
+// Create a beautiful modern theme
+const theme = createTheme({
+  palette: {
+    mode: 'light',
+    primary: {
+      main: '#6366f1', // Modern indigo
+      light: '#818cf8',
+      dark: '#4338ca',
+      contrastText: '#ffffff',
+    },
+    secondary: {
+      main: '#ec4899', // Modern pink
+      light: '#f472b6',
+      dark: '#be185d',
+    },
+    success: {
+      main: '#10b981', // Modern emerald
+      light: '#34d399',
+      dark: '#059669',
+    },
+    warning: {
+      main: '#f59e0b', // Modern amber
+      light: '#fbbf24',
+      dark: '#d97706',
+    },
+    error: {
+      main: '#ef4444', // Modern red
+      light: '#f87171',
+      dark: '#dc2626',
+    },
+    background: {
+      default: '#fafafa',
+      paper: '#ffffff',
+    },
+    grey: {
+      50: '#f9fafb',
+      100: '#f3f4f6',
+      200: '#e5e7eb',
+      300: '#d1d5db',
+      400: '#9ca3af',
+      500: '#6b7280',
+      600: '#4b5563',
+      700: '#374151',
+      800: '#1f2937',
+      900: '#111827',
+    },
+  },
+  typography: {
+    fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+    h1: {
+      fontWeight: 700,
+      fontSize: '2.5rem',
+      lineHeight: 1.2,
+    },
+    h2: {
+      fontWeight: 700,
+      fontSize: '2rem',
+      lineHeight: 1.3,
+    },
+    h3: {
+      fontWeight: 600,
+      fontSize: '1.75rem',
+      lineHeight: 1.3,
+    },
+    h4: {
+      fontWeight: 600,
+      fontSize: '1.5rem',
+      lineHeight: 1.4,
+    },
+    h5: {
+      fontWeight: 600,
+      fontSize: '1.25rem',
+      lineHeight: 1.4,
+    },
+    h6: {
+      fontWeight: 600,
+      fontSize: '1.125rem',
+      lineHeight: 1.4,
+    },
+    body1: {
+      fontSize: '1rem',
+      lineHeight: 1.6,
+    },
+    body2: {
+      fontSize: '0.875rem',
+      lineHeight: 1.6,
+    },
+    button: {
+      textTransform: 'none',
+      fontWeight: 500,
+    },
+  },
+  shape: {
+    borderRadius: 12,
+  },
+  shadows: [
+    'none',
+    '0px 1px 3px rgba(0, 0, 0, 0.08), 0px 1px 2px rgba(0, 0, 0, 0.04)',
+    '0px 4px 6px -1px rgba(0, 0, 0, 0.08), 0px 2px 4px -1px rgba(0, 0, 0, 0.04)',
+    '0px 10px 15px -3px rgba(0, 0, 0, 0.08), 0px 4px 6px -2px rgba(0, 0, 0, 0.04)',
+    '0px 20px 25px -5px rgba(0, 0, 0, 0.08), 0px 10px 10px -5px rgba(0, 0, 0, 0.04)',
+    '0px 25px 50px -12px rgba(0, 0, 0, 0.20)',
+    '0px 25px 50px -12px rgba(0, 0, 0, 0.20)',
+    '0px 25px 50px -12px rgba(0, 0, 0, 0.20)',
+    '0px 25px 50px -12px rgba(0, 0, 0, 0.20)',
+    '0px 25px 50px -12px rgba(0, 0, 0, 0.20)',
+    '0px 25px 50px -12px rgba(0, 0, 0, 0.20)',
+    '0px 25px 50px -12px rgba(0, 0, 0, 0.20)',
+    '0px 25px 50px -12px rgba(0, 0, 0, 0.20)',
+    '0px 25px 50px -12px rgba(0, 0, 0, 0.20)',
+    '0px 25px 50px -12px rgba(0, 0, 0, 0.20)',
+    '0px 25px 50px -12px rgba(0, 0, 0, 0.20)',
+    '0px 25px 50px -12px rgba(0, 0, 0, 0.20)',
+    '0px 25px 50px -12px rgba(0, 0, 0, 0.20)',
+    '0px 25px 50px -12px rgba(0, 0, 0, 0.20)',
+    '0px 25px 50px -12px rgba(0, 0, 0, 0.20)',
+    '0px 25px 50px -12px rgba(0, 0, 0, 0.20)',
+    '0px 25px 50px -12px rgba(0, 0, 0, 0.20)',
+    '0px 25px 50px -12px rgba(0, 0, 0, 0.20)',
+    '0px 25px 50px -12px rgba(0, 0, 0, 0.20)',
+    '0px 25px 50px -12px rgba(0, 0, 0, 0.20)',
+  ],
+  components: {
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          borderRadius: 8,
+          textTransform: 'none',
+          fontWeight: 500,
+          padding: '8px 16px',
+          boxShadow: 'none',
+          transition: 'all 0.2s ease-in-out',
+          '&:hover': {
+            boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.15)',
+            transform: 'translateY(-1px)',
+          },
+        },
+        contained: {
+          background: 'linear-gradient(45deg, #6366f1 30%, #8b5cf6 90%)',
+          '&:hover': {
+            background: 'linear-gradient(45deg, #4338ca 30%, #7c3aed 90%)',
+          },
+        },
+      },
+    },
+    MuiPaper: {
+      styleOverrides: {
+        root: {
+          borderRadius: 12,
+          boxShadow: '0px 4px 6px -1px rgba(0, 0, 0, 0.08), 0px 2px 4px -1px rgba(0, 0, 0, 0.04)',
+        },
+      },
+    },
+    MuiCard: {
+      styleOverrides: {
+        root: {
+          borderRadius: 12,
+          boxShadow: '0px 4px 6px -1px rgba(0, 0, 0, 0.08), 0px 2px 4px -1px rgba(0, 0, 0, 0.04)',
+          transition: 'all 0.2s ease-in-out',
+          '&:hover': {
+            boxShadow: '0px 10px 15px -3px rgba(0, 0, 0, 0.12), 0px 4px 6px -2px rgba(0, 0, 0, 0.08)',
+            transform: 'translateY(-2px)',
+          },
+        },
+      },
+    },
+    MuiChip: {
+      styleOverrides: {
+        root: {
+          fontWeight: 500,
+          transition: 'all 0.2s ease-in-out',
+        },
+      },
+    },
+  },
+});
 
 export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [writeups, setWriteups] = useState<ProcessedWriteup[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedWriteup, setSelectedWriteup] = useState<ProcessedWriteup | null>(null);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+  const [filterState, setFilterState] = useState<FilterState>({
+    search: '',
+    selectedTags: [],
+    selectedPrograms: [],
+    selectedAuthors: [],
+    readStatus: 'all',
+    dateRange: { start: null, end: null },
+  });
+
+  // Load data on component mount
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        // Try API first, then fallback to local file
+        try {
+          const response = await fetch('/api/writeups');
+          if (response.ok) {
+            const data = await response.json();
+            const processedData = processWriteups(data);
+            setWriteups(processedData);
+            return;
+          }
+        } catch (apiError) {
+          console.log('API failed, trying local file:', apiError);
+        }
+        
+        // Fallback to local file  
+        const writeupData = await import('@/data/writeup.json');
+        const processedData = processWriteups(writeupData.default ? writeupData.default : writeupData as any);
+        setWriteups(processedData);
+      } catch (err) {
+        console.error('Error loading writeups:', err);
+        setError('Failed to load writeups data. Please check that the writeup.json file exists.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
+
+  // Handle filter changes
+  const handleFilterChange = (newState: Partial<FilterState>) => {
+    setFilterState(prev => ({ ...prev, ...newState }));
+  };
+
+  // Handle writeup selection for detailed view
+  const handleRowSelect = (writeup: ProcessedWriteup) => {
+    setSelectedWriteup(writeup);
+  };
+
+  // Handle read status toggle
+  const handleToggleRead = (ids: string[]) => {
+    setWriteups(prev => 
+      prev.map(writeup => 
+        ids.includes(writeup.id) ? { ...writeup, read: !writeup.read } : writeup
+      )
+    );
+  };
+
+  // Get unique values for filters
+  const availableTags = useMemo(() => getUniqueValues(writeups, 'tags'), [writeups]);
+  const availablePrograms = useMemo(() => getUniqueValues(writeups, 'programs'), [writeups]);
+  const availableAuthors = useMemo(() => getUniqueValues(writeups, 'authors'), [writeups]);
+
+  // Filter writeups based on current filter state
+  const filteredWriteups = useMemo(() => 
+    filterWriteups(
+      writeups,
+      filterState.search,
+      filterState.selectedTags,
+      filterState.selectedPrograms,
+      filterState.selectedAuthors,
+      filterState.readStatus,
+      filterState.dateRange
+    ), 
+    [writeups, filterState]
+  );
+
+  if (loading) {
+    return (
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <Box sx={{ 
+          minHeight: '100vh',
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+          <Container maxWidth="sm">
+            <Paper
+              elevation={6}
+              sx={{
+                p: 6,
+                textAlign: 'center',
+                borderRadius: 4,
+                background: 'rgba(255, 255, 255, 0.95)',
+                backdropFilter: 'blur(20px)',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+              }}
+            >
+              <Box sx={{ mb: 3 }}>
+                <CircularProgress 
+                  size={80} 
+                  thickness={4}
+                  sx={{
+                    color: 'primary.main',
+                    animationDuration: '1.5s',
+                  }}
+                />
+              </Box>
+              <Typography 
+                variant="h4" 
+                gutterBottom
+                sx={{
+                  fontWeight: 700,
+                  background: 'linear-gradient(45deg, #6366f1 30%, #8b5cf6 90%)',
+                  backgroundClip: 'text',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                }}
+              >
+                📚 Writeup Manager
+              </Typography>
+              <Typography 
+                variant="body1" 
+                color="text.secondary"
+                sx={{ fontSize: '1.1rem' }}
+              >
+                Loading your writeups with style...
+              </Typography>
+            </Paper>
+          </Container>
+        </Box>
+      </ThemeProvider>
+    );
+  }
+
+  if (error) {
+    return (
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+          <Container maxWidth="xl" sx={{ py: 4, flex: 1 }}>
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {error}
+            </Alert>
+          </Container>
+          <Footer />
+        </Box>
+      </ThemeProvider>
+    );
+  }
+
+  return (
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+        <NoSSR fallback={
+          <Box sx={{ 
+            minHeight: '100vh',
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
+            <Paper
+              elevation={6}
+              sx={{
+                p: 4,
+                textAlign: 'center',
+                borderRadius: 3,
+                background: 'rgba(255, 255, 255, 0.9)',
+                backdropFilter: 'blur(15px)',
+              }}
+            >
+              <CircularProgress 
+                size={60} 
+                thickness={4}
+                sx={{ color: 'primary.main', mb: 2 }}
+              />
+              <Typography variant="h6" color="primary">
+                ⚡ Initializing...
+              </Typography>
+            </Paper>
+          </Box>
+        }>
+          {/* Beautiful Header Section */}
+          <Box
+            sx={{
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              color: 'white',
+              py: 6,
+              mb: 3,
+              position: 'relative',
+              overflow: 'hidden',
+              '&::before': {
+                content: '""',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                background: 'url("data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23ffffff" fill-opacity="0.1"%3E%3Ccircle cx="30" cy="30" r="2"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")',
+              },
+            }}
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+            <Container maxWidth="xl" sx={{ position: 'relative', zIndex: 1 }}>
+              <Box sx={{ textAlign: 'center' }}>
+                <Typography
+                  variant="h2"
+                  component="h1"
+                  sx={{
+                    fontWeight: 700,
+                    mb: 2,
+                    background: 'linear-gradient(45deg, #ffffff 30%, #e0e7ff 90%)',
+                    backgroundClip: 'text',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    textShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                  }}
+                >
+                  📚 Writeup Manager
+                </Typography>
+                <Typography
+                  variant="h6"
+                  sx={{
+                    opacity: 0.9,
+                    maxWidth: '600px',
+                    mx: 'auto',
+                    lineHeight: 1.6,
+                  }}
+                >
+                  Organize, track, and manage your cybersecurity writeups with style
+                </Typography>
+                <Box
+                  sx={{
+                    mt: 3,
+                    display: 'flex',
+                    justifyContent: 'center',
+                    gap: 2,
+                    flexWrap: 'wrap',
+                  }}
+                >
+                  <Paper
+                    elevation={0}
+                    sx={{
+                      px: 2,
+                      py: 1,
+                      backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                      backdropFilter: 'blur(10px)',
+                      border: '1px solid rgba(255, 255, 255, 0.3)',
+                      borderRadius: 2,
+                      color: 'white',
+                    }}
+                  >
+                    <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                      {writeups.length} Total Writeups
+                    </Typography>
+                  </Paper>
+                  <Paper
+                    elevation={0}
+                    sx={{
+                      px: 2,
+                      py: 1,
+                      backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                      backdropFilter: 'blur(10px)',
+                      border: '1px solid rgba(255, 255, 255, 0.3)',
+                      borderRadius: 2,
+                      color: 'white',
+                    }}
+                  >
+                    <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                      {writeups.filter(w => w.read).length} Read
+                    </Typography>
+                  </Paper>
+                  <Paper
+                    elevation={0}
+                    sx={{
+                      px: 2,
+                      py: 1,
+                      backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                      backdropFilter: 'blur(10px)',
+                      border: '1px solid rgba(255, 255, 255, 0.3)',
+                      borderRadius: 2,
+                      color: 'white',
+                    }}
+                  >
+                    <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                      {writeups.filter(w => !w.read).length} Unread
+                    </Typography>
+                  </Paper>
+                </Box>
+              </Box>
+            </Container>
+          </Box>
+
+          <Container maxWidth="xl" sx={{ py: 2, flex: 1 }}>
+            <SearchAndFilter
+              writeups={writeups}
+              filters={filterState}
+              onFiltersChange={setFilterState}
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+            
+            <WriteupTable
+              writeups={filteredWriteups}
+              onRowSelect={handleRowSelect}
+              onToggleRead={handleToggleRead}
+            />
+
+            <WriteupDetailModal
+              open={!!selectedWriteup}
+              writeup={selectedWriteup}
+              onClose={() => setSelectedWriteup(null)}
+              onToggleRead={(id) => handleToggleRead([id])}
+            />
+          </Container>
+        </NoSSR>
+        <Footer />
+      </Box>
+    </ThemeProvider>
   );
 }
